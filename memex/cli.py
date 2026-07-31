@@ -73,11 +73,14 @@ Memory is stored locally in ~/.memex/ as SQLite - no LLMs, no network.
 # Date parsing
 # ---------------------------------------------------------------------------
 
+_DURATION_RE = re.compile(r"^(\d+)([dwmy])$")
+
+
 def _parse_date(value: str, *, end_of_day: bool = False) -> str:
     value = value.strip()
     units = {"d": 1, "w": 7, "m": 30, "y": 365}
-    m = re.compile(r"^(\d+)([dwmy])$").match(value)
-    if m and (m.group(2) in units):
+    m = _DURATION_RE.match(value)
+    if m:
         n, unit = int(m.group(1)), m.group(2)
         delta = timedelta(days=n * units[unit])
         return (datetime.now(timezone.utc) - delta).isoformat(timespec="seconds")
